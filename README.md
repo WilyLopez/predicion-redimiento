@@ -70,11 +70,20 @@ El sistema combina tres paradigmas de aprendizaje automatico para lograr una pre
 
 Para un entendimiento profundo del sistema, puede consultar los siguientes documentos especializados en el directorio `docs/`:
 
+*   [informe_sistema.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/informe_sistema.md): Resumen ejecutivo de que hace el sistema, su funcionamiento y sus beneficios institucionales.
 *   [documento_diseno.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/documento_diseno.md): Especificacion de la arquitectura de software y justificacion de los paradigmas de programacion aplicados.
 *   [analisis_exploratorio.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/analisis_exploratorio.md): Reporte de analisis estadistico exploratorio y variables clave.
 *   [manual_usuario.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/manual_usuario.md): Guia de usuario para operar el dashboard Streamlit y analizar scores.
 *   [evaluacion_modelos.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/evaluacion_modelos.md): Reporte comparativo de rendimiento (Accuracy, F1-Score) de los estimadores.
 *   [perfiles_vulnerabilidad.md](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/docs/perfiles_vulnerabilidad.md): Analisis descriptivo de los perfiles de riesgo socioeconomico obtenidos mediante Clustering.
+
+---
+
+## Recursos de Presentacion (Exposicion)
+
+Para apoyar la exposicion del proyecto bajo el criterio de **Presentacion** de la rubrica:
+*   [presentacion_proyecto.pptx](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/presentacion_proyecto.pptx): Presentacion de diapositivas en formato PowerPoint generada automaticamente. Contiene el resumen de objetivos, dataset, arquitectura, modelos y conclusiones.
+*   [generar_presentacion.py](file:///c:/Users/Lenovo/OneDrive/Escritorio/rendimiento-estudiantil/generar_presentacion.py): Script en Python utilizado para compilar la presentacion.
 
 ---
 

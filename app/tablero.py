@@ -145,10 +145,11 @@ def main():
         st.stop()
         
     # Pestañas
-    pestana1, pestana2, pestana3 = st.tabs([
+    pestana1, pestana2, pestana3, pestana4 = st.tabs([
         "Estadisticas Institucionales",
         "Calculadora de Riesgo Individual",
-        "Prediccion Masiva (CSV)"
+        "Prediccion Masiva (CSV)",
+        "Validacion del Modelo"
     ])
     
     # --- PESTAÑA 1: ESTADÍSTICAS INSTITUCIONALES ---
@@ -462,6 +463,104 @@ def main():
                     )
             except Exception as error_lote:
                 st.error(f"Error procesando el lote de datos: {str(error_lote)}")
+
+    # --- PESTAÑA 4: VALIDACIÓN DEL MODELO ---
+    with pestana4:
+        st.write("### Validacion Estadistica del Sistema")
+        st.write("Esta seccion verifica que las metricas del modelo son robustas (no sobreajuste) y que el clustering esta bien justificado.")
+        
+        vcol1, vcol2 = st.columns(2)
+        
+        # --- Cross-Validation K-Fold ---
+        with vcol1:
+            st.write("#### Validacion Cruzada Estratificada (K-Fold, k=5)")
+            st.write("Confirma que el accuracy no es sobreajuste: el modelo se evalua en 5 particiones independientes.")
+            if st.button("Ejecutar Validacion Cruzada", key="btn_cv"):
+                with st.spinner("Ejecutando 5-Fold Cross-Validation... puede tardar unos segundos."):
+                    try:
+                        X_completo = pd.concat([procesador.X_entrenamiento, procesador.X_prueba])
+                        y_completo = pd.concat([procesador.y_entrenamiento, procesador.y_prueba])
+                        resultado_cv = clasificador.validar_cruzado(X_completo, y_completo, n_splits=5)
+                        
+                        st.success(f"✅ Accuracy medio: **{resultado_cv['precision_media']*100:.2f}%** ± {resultado_cv['desviacion_estandar']*100:.2f}%")
+                        
+                        scores_df = pd.DataFrame({
+                            "Fold": [f"Fold {i+1}" for i in range(len(resultado_cv['scores_por_fold']))],
+                            "Accuracy (%)": [round(s * 100, 2) for s in resultado_cv['scores_por_fold']]
+                        })
+                        
+                        fig_cv, ax_cv = plt.subplots(figsize=(5, 3))
+                        colores_cv = ["#22c55e" if s >= resultado_cv['precision_media'] else "#3b82f6" 
+                                      for s in resultado_cv['scores_por_fold']]
+                        ax_cv.bar(scores_df["Fold"], scores_df["Accuracy (%)"], color=colores_cv, edgecolor="white")
+                        ax_cv.axhline(y=resultado_cv['precision_media'] * 100, color="#ef4444", 
+                                      linestyle="--", linewidth=1.5, label=f"Media: {resultado_cv['precision_media']*100:.2f}%")
+                        ax_cv.set_ylim(50, 100)
+                        ax_cv.set_ylabel("Accuracy (%)")
+                        ax_cv.legend(fontsize=9)
+                        plt.xticks(rotation=15)
+                        st.pyplot(fig_cv)
+                        st.caption("Un modelo estable tiene poca varianza entre folds (barras de altura similar).")
+                    except Exception as e_cv:
+                        st.error(f"Error en validacion cruzada: {str(e_cv)}")
+        
+        # --- Silhouette Score del Clustering ---
+        with vcol2:
+            st.write("#### Silhouette Score — Justificacion de K=3 Clusters")
+            st.write("El Silhouette Score mide la calidad del agrupamiento. El valor maximo justifica el K elegido.")
+            if st.button("Calcular Silhouette por K", key="btn_sil"):
+                with st.spinner("Calculando Silhouette Score para K=2 hasta K=6..."):
+                    try:
+                        scores_sil = agrupador.calcular_silhouette_por_k(procesador.datos, rango_k=(2, 6))
+                        sil_actual = agrupador.obtener_silhouette()
+                        
+                        st.success(f"✅ Silhouette Score con K=3: **{sil_actual}** (modelo actual)")
+                        
+                        sil_df = pd.DataFrame(list(scores_sil.items()), columns=["K Clusters", "Silhouette Score"])
+                        
+                        fig_sil, ax_sil = plt.subplots(figsize=(5, 3))
+                        colores_sil = ["#ef4444" if k == 3 else "#3b82f6" for k in sil_df["K Clusters"]]
+                        ax_sil.bar(sil_df["K Clusters"].astype(str), sil_df["Silhouette Score"], 
+                                   color=colores_sil, edgecolor="white")
+                        ax_sil.set_xlabel("Numero de Clusters (K)")
+                        ax_sil.set_ylabel("Silhouette Score")
+                        ax_sil.set_ylim(0, max(sil_df["Silhouette Score"]) * 1.25)
+                        st.pyplot(fig_sil)
+                        st.caption("La barra roja es el K=3 seleccionado. Un valor mayor indica mejor separacion entre grupos.")
+                    except Exception as e_sil:
+                        st.error(f"Error al calcular Silhouette: {str(e_sil)}")
+        
+        st.write("---")
+        
+        # --- SHAP Importancia Global ---
+        st.write("#### Importancia Global de Variables (SHAP — Promedio sobre toda la poblacion)")
+        st.write("Muestra que variables tienen mayor impacto promedio en la prediccion de desercion a nivel institucional (no individual).")
+        if st.button("Generar Grafica de Importancia Global SHAP", key="btn_shap_global"):
+            with st.spinner("Calculando importancia SHAP sobre muestra de 200 alumnos..."):
+                try:
+                    df_importancia = explicador.calcular_importancia_global(procesador.X_entrenamiento, max_muestra=200)
+                    
+                    # Traducir nombres de columnas
+                    df_importancia["Variable"] = df_importancia["Caracteristica"].map(MAPEO_COLUMNAS_ESPANOL).fillna(df_importancia["Caracteristica"])
+                    top_15 = df_importancia.head(15)
+                    
+                    fig_shap, ax_shap = plt.subplots(figsize=(9, 5))
+                    colores_importancia = [
+                        "#ef4444" if i < 3 else "#f97316" if i < 7 else "#3b82f6"
+                        for i in range(len(top_15))
+                    ]
+                    ax_shap.barh(top_15["Variable"][::-1], top_15["Importancia_Media_SHAP"][::-1], 
+                                 color=colores_importancia[::-1], edgecolor="white")
+                    ax_shap.set_xlabel("Importancia media |SHAP| (impacto promedio en P(Desercion))")
+                    ax_shap.set_ylabel("")
+                    st.pyplot(fig_shap)
+                    st.caption("Rojo: variables criticas. Naranja: variables importantes. Azul: variables secundarias.")
+                    
+                    st.dataframe(top_15[["Variable", "Importancia_Media_SHAP"]].rename(
+                        columns={"Importancia_Media_SHAP": "Impacto Medio |SHAP|"}
+                    ), use_container_width=True)
+                except Exception as e_shap_g:
+                    st.error(f"Error al generar importancia SHAP global: {str(e_shap_g)}")
 
 if __name__ == "__main__":
     main()

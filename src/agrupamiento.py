@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 from src.excepciones import ErrorValidacionDatos
 from src.decoradores import medir_tiempo, capturar_errores
 
@@ -40,6 +41,14 @@ class AgrupadorEstudiantes:
 
         # Entrenar K-Means
         self.modelo_kmeans.fit(datos_normalizados)
+        
+        # Calcular y almacenar el Silhouette Score para validar la calidad del agrupamiento
+        if len(datos_normalizados) > self.n_clusters:
+            etiquetas = self.modelo_kmeans.labels_
+            self.silhouette = round(float(silhouette_score(datos_normalizados, etiquetas)), 4)
+        else:
+            self.silhouette = None
+            
         return self
 
     @capturar_errores
@@ -82,3 +91,32 @@ class AgrupadorEstudiantes:
             })
 
         return pd.DataFrame(resumen_perfiles)
+
+    def obtener_silhouette(self):
+        """Retorna el Silhouette Score del agrupamiento. Un valor cercano a 1.0 indica clusters bien definidos.
+        
+        Rango: [-1, 1]. Valores > 0.25 son aceptables para datos multivariados complejos.
+        """
+        if not hasattr(self, "silhouette") or self.silhouette is None:
+            raise ErrorValidacionDatos("El agrupamiento no ha sido entrenado o el dataset es demasiado pequeno.")
+        return self.silhouette
+
+    @capturar_errores
+    def calcular_silhouette_por_k(self, datos_estudiantes, rango_k=(2, 7)):
+        """Calcula el Silhouette Score para distintos valores de K para justificar la eleccion optima.
+        
+        Retorna un diccionario {k: silhouette_score} para comparar visualmente.
+        """
+        columnas_disponibles = [col for col in self.columnas_socioeconomicas if col in datos_estudiantes.columns]
+        datos_clustering = datos_estudiantes[columnas_disponibles].fillna(datos_estudiantes[columnas_disponibles].median())
+        scaler_temp = StandardScaler()
+        datos_normalizados = scaler_temp.fit_transform(datos_clustering)
+        
+        resultados = {}
+        for k in range(rango_k[0], rango_k[1] + 1):
+            kmeans_temp = KMeans(n_clusters=k, random_state=self.semilla_aleatoria, n_init=10)
+            etiquetas = kmeans_temp.fit_predict(datos_normalizados)
+            score = silhouette_score(datos_normalizados, etiquetas)
+            resultados[k] = round(float(score), 4)
+        
+        return resultados

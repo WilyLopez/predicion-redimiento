@@ -61,3 +61,43 @@ class ExplicadorRiesgo:
             valores_instancia = valores_shap[0]
             
         return valores_instancia
+
+    @capturar_errores
+    @medir_tiempo
+    def calcular_importancia_global(self, X_muestra, max_muestra=200):
+        """Calcula los valores SHAP globales sobre una muestra de datos para generar un resumen de importancia de variables.
+        
+        Retorna un DataFrame con el impacto medio absoluto de cada variable (mean |SHAP|),
+        ordenado de mayor a menor importancia. Util para el summary plot institucional.
+        """
+        if self.explicador is None:
+            raise ErrorValidacionDatos("El explicador SHAP no esta inicializado.")
+        
+        # Limitar la muestra para eficiencia computacional
+        muestra = X_muestra.head(max_muestra) if len(X_muestra) > max_muestra else X_muestra
+        
+        try:
+            valores_shap_global = self.explicador(muestra)
+        except Exception:
+            if self.clasificador.tipo_modelo in ["bosque_aleatorio", "xgboost"]:
+                explicador_temp = shap.TreeExplainer(
+                    self.modelo_subyacente, feature_perturbation="tree_path_dependent"
+                )
+                valores_shap_global = explicador_temp(muestra)
+            else:
+                raise
+        
+        # Para multiclase, extraer la clase Desercion (indice 0)
+        if len(valores_shap_global.shape) == 3:
+            shap_matrix = valores_shap_global.values[:, :, 0]
+        else:
+            shap_matrix = valores_shap_global.values
+        
+        importancia_media = np.mean(np.abs(shap_matrix), axis=0)
+        
+        df_importancia = pd.DataFrame({
+            "Caracteristica": muestra.columns.tolist(),
+            "Importancia_Media_SHAP": importancia_media
+        }).sort_values(by="Importancia_Media_SHAP", ascending=False).reset_index(drop=True)
+        
+        return df_importancia
