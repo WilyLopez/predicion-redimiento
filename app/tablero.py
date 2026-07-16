@@ -62,9 +62,10 @@ MAPEO_COLUMNAS_ESPANOL = {
     "GDP": "PIB"
 }
 
-# Estilos CSS personalizados para apariencia premium (Glassmorphism y sombras neón)
+# Estilos CSS personalizados para apariencia premium (Glassmorphism e iconos de Bootstrap)
 st.markdown(
     """
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
     
@@ -78,6 +79,15 @@ st.markdown(
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .main-title i {
+        background: linear-gradient(90deg, #60a5fa, #34d399);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
     
     .metric-card {
@@ -103,6 +113,10 @@ st.markdown(
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
     .metric-card p {
         color: #f8fafc;
@@ -132,6 +146,17 @@ st.markdown(
         border-radius: 20px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.4);
     }
+    
+    .sub-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #f8fafc;
+        font-weight: 600;
+    }
+    .sub-section-title i {
+        color: #60a5fa;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -158,11 +183,11 @@ def inicializar_sistema_completo(ruta_datos, tipo_modelo):
     return procesador, clasificador, agrupador, explicador
 
 def main():
-    st.markdown('<h1 class="main-title">🎓 Sistema de Analisis de Riesgo y Rendimiento Estudiantil</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title"><i class="bi bi-mortarboard-fill"></i> Sistema de Analisis de Riesgo y Rendimiento Estudiantil</h1>', unsafe_allow_html=True)
     st.markdown('<p style="color:#94a3b8; font-size:16px; margin-top:-10px;">Herramienta inteligente de gestion academica y prevencion de la desercion</p>', unsafe_allow_html=True)
     
     # Barra lateral de configuración
-    st.sidebar.markdown("### ⚙️ Configuracion de Modelos")
+    st.sidebar.markdown("### <i class='bi bi-gear-fill'></i> Configuracion de Modelos", unsafe_allow_html=True)
     
     ruta_datos = "datos/datos_estudiantes.csv"
     if not os.path.exists(ruta_datos):
@@ -182,17 +207,17 @@ def main():
         st.error(f"Error al inicializar el sistema: {str(e)}")
         st.stop()
         
-    # Pestañas principales
+    # Pestañas principales (con textos limpios y elegantes)
     pestana1, pestana2, pestana3, pestana4 = st.tabs([
-        "📊 Estadisticas Institucionales",
-        "🧮 Calculadora de Riesgo Individual",
-        "📁 Prediccion Masiva (CSV)",
-        "🧪 Validacion del Modelo"
+        "Estadisticas Institucionales",
+        "Calculadora de Riesgo Individual",
+        "Prediccion Masiva (CSV)",
+        "Validacion del Modelo"
     ])
     
     # --- PESTAÑA 1: ESTADÍSTICAS INSTITUCIONALES ---
     with pestana1:
-        st.markdown("### 📊 Vista General de la Institucion")
+        st.markdown("### <i class='bi bi-bar-chart-line-fill'></i> Vista General de la Institucion", unsafe_allow_html=True)
         
         datos_crudos = procesador.datos
         total_alumnos = len(datos_crudos)
@@ -204,21 +229,21 @@ def main():
         with col1:
             st.markdown(f'''
                 <div class="metric-card">
-                    <h3>Total Alumnos Analizados</h3>
+                    <h3><i class="bi bi-people-fill" style="color: #60a5fa;"></i> Total Alumnos Analizados</h3>
                     <p style="color: #60a5fa;">{total_alumnos:,}</p>
                 </div>
             ''', unsafe_allow_html=True)
         with col2:
             st.markdown(f'''
                 <div class="metric-card">
-                    <h3>Tasa de Desercion Global</h3>
+                    <h3><i class="bi bi-exclamation-triangle-fill" style="color: #f87171;"></i> Tasa de Desercion Global</h3>
                     <p class="riesgo-alto">{tasa_desercion:.1f}%</p>
                 </div>
             ''', unsafe_allow_html=True)
         with col3:
             st.markdown(f'''
                 <div class="metric-card">
-                    <h3>Tasa de Graduacion Global</h3>
+                    <h3><i class="bi bi-check-circle-fill" style="color: #34d399;"></i> Tasa de Graduacion Global</h3>
                     <p class="riesgo-bajo">{tasa_graduados:.1f}%</p>
                 </div>
             ''', unsafe_allow_html=True)
@@ -277,8 +302,8 @@ def main():
         st.markdown("---")
         
         # Perfiles Socioeconomicos (Clustering)
-        st.markdown("#### 👥 Segmentacion Socioeconomica de Vulnerabilidad (Clustering K-Means)")
-        st.markdown("El sistema agrupa automaticamente a los estudiantes en 3 perfiles socioeconomicos al momento del ingreso para poder ayudarlos antes de que iniciien las clases:")
+        st.markdown("#### <i class='bi bi-people-fill'></i> Segmentacion Socioeconomica de Vulnerabilidad (Clustering K-Means)", unsafe_allow_html=True)
+        st.markdown("El sistema agrupa automaticamente a los estudiantes en 3 perfiles socioeconomicos al momento del ingreso para poder ayudarlos antes de que inicien las clases:")
         
         resumen_perfiles = agrupador.obtener_descripcion_perfiles(datos_crudos)
         resumen_perfiles_interfaz = resumen_perfiles.rename(columns={
@@ -293,16 +318,16 @@ def main():
 
     # --- PESTAÑA 2: CALCULADORA DE RIESGO INDIVIDUAL ---
     with pestana2:
-        st.markdown("### 🧮 Calculadora de Riesgo de Desercion Individual")
+        st.markdown("### <i class='bi bi-calculator-fill'></i> Calculadora de Riesgo de Desercion Individual", unsafe_allow_html=True)
         st.markdown("Complete el formulario para evaluar la probabilidad de riesgo de un estudiante en tiempo real.")
         
         # Secciones visuales bien delimitadas con expanders e iconos
         with st.container():
-            st.markdown("#### 📝 Datos del Estudiante")
+            st.markdown("#### <i class='bi bi-file-earmark-text-fill'></i> Datos del Estudiante", unsafe_allow_html=True)
             fcol1, fcol2, fcol3 = st.columns(3)
             
             with fcol1:
-                st.markdown("**🧑‍💼 Demografia y Situacion Personal**")
+                st.markdown("<div class='sub-section-title'><i class='bi bi-person-fill'></i> Demografia y Situacion Personal</div>", unsafe_allow_html=True)
                 edad = st.number_input("Edad al inscribirse", min_value=15, max_value=80, value=20)
                 genero = st.selectbox("Genero", ["Femenino", "Masculino"])
                 genero_cod = 1 if genero == "Masculino" else 0
@@ -313,7 +338,7 @@ def main():
                 nacionalidad_cod = st.number_input("Nacionalidad (Codigo)", min_value=1, max_value=50, value=1)
                 
             with fcol2:
-                st.markdown("**💰 Situacion Financiera**")
+                st.markdown("<div class='sub-section-title'><i class='bi bi-cash-stack'></i> Situacion Financiera</div>", unsafe_allow_html=True)
                 becario = st.selectbox("¿Cuenta con Beca?", ["No", "Si"])
                 becario_cod = 1 if becario == "Si" else 0
                 deudor = st.selectbox("¿Tiene deudas de Matricula?", ["No", "Si"])
@@ -325,7 +350,7 @@ def main():
                 nota_admision = st.number_input("Nota de Admision general", min_value=90.0, max_value=200.0, value=120.0)
     
             with fcol3:
-                st.markdown("**📚 Desempeño Academico**")
+                st.markdown("<div class='sub-section-title'><i class='bi bi-book-half'></i> Desempeño Academico</div>", unsafe_allow_html=True)
                 aprobadas_1 = st.number_input("Materias Aprobadas 1er Semestre", min_value=0, max_value=30, value=6)
                 nota_1 = st.number_input("Nota Promedio 1er Semestre (0 - 20)", min_value=0.0, max_value=20.0, value=12.5)
                 matriculadas_1 = st.number_input("Materias Matriculadas 1er Semestre", min_value=0, max_value=30, value=6)
@@ -338,7 +363,7 @@ def main():
                 
         # Boton de calculo
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🔮 Evaluar Riesgo del Estudiante", type="primary", use_container_width=True):
+        if st.button("Evaluar Riesgo del Estudiante", type="primary", use_container_width=True):
             datos_estudiante = {col: 0 for col in procesador.columnas_caracteristicas}
             
             valores_formulario = {
@@ -402,7 +427,7 @@ def main():
             estado_predicho = MAPEO_INVERSO[prediccion_numerica]
             
             st.markdown("---")
-            st.markdown("### 🔍 Resultados del Analisis de Riesgo")
+            st.markdown("### <i class='bi bi-search'></i> Resultados del Analisis de Riesgo", unsafe_allow_html=True)
             
             rcol1, rcol2 = st.columns([1, 1.2])
             
@@ -421,7 +446,7 @@ def main():
                 )
                 
                 grupo_perfil = agrupador.asignar_perfil(df_entrada)[0]
-                st.markdown(f"<div style='margin-top:15px; padding:12px; border-radius:10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color:#93c5fd;'>ℹ️ El alumno pertenece al <b>Perfil Socioeconomico {grupo_perfil}</b> (K-Means).</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='margin-top:15px; padding:12px; border-radius:10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color:#93c5fd;'><i class='bi bi-info-circle-fill'></i> El alumno pertenece al <b>Perfil Socioeconomico {grupo_perfil}</b> (K-Means).</div>", unsafe_allow_html=True)
                 
             with rcol2:
                 # Mostrar Velocímetro (Gauge Chart) en Plotly
@@ -454,7 +479,7 @@ def main():
                 st.plotly_chart(fig_gauge, use_container_width=True)
                 
             st.markdown("---")
-            st.markdown("#### 🔍 ¿Por que el alumno tiene esta prediccion? (Explicacion SHAP)")
+            st.markdown("#### <i class='bi bi-question-circle-fill'></i> ¿Por que el alumno tiene esta prediccion? (Explicacion SHAP)", unsafe_allow_html=True)
             try:
                 valores_shap = explicador.explicar_instancia(df_entrada_normalizado)
                 
@@ -468,7 +493,7 @@ def main():
                 valores_df = valores_df.sort_values(by="Valor_SHAP", key=abs, ascending=False).head(8)
                 
                 # Gráfico interactivo de barras de Plotly para SHAP
-                valores_df["Tipo_Impacto"] = ["Aumenta el Riesgo 🔴" if val >= 0 else "Disminuye el Riesgo 🔵" for val in valores_df["Valor_SHAP"]]
+                valores_df["Tipo_Impacto"] = ["Aumenta el Riesgo" if val >= 0 else "Disminuye el Riesgo" for val in valores_df["Valor_SHAP"]]
                 
                 fig_shap = px.bar(
                     valores_df,
@@ -476,7 +501,7 @@ def main():
                     y="Caracteristica_Es",
                     orientation="h",
                     color="Tipo_Impacto",
-                    color_discrete_map={"Aumenta el Riesgo 🔴": "#f87171", "Disminuye el Riesgo 🔵": "#60a5fa"},
+                    color_discrete_map={"Aumenta el Riesgo": "#f87171", "Disminuye el Riesgo": "#60a5fa"},
                     labels={"Valor_SHAP": "Impacto en el riesgo", "Caracteristica_Es": "Variable del estudiante"}
                 )
                 fig_shap.update_layout(
@@ -493,7 +518,7 @@ def main():
 
     # --- PESTAÑA 3: PREDICCIÓN MASIVA ---
     with pestana3:
-        st.markdown("### 📁 Evaluacion Masiva de Alumnos (CSV)")
+        st.markdown("### <i class='bi bi-cloud-arrow-up-fill'></i> Evaluacion Masiva de Alumnos (CSV)", unsafe_allow_html=True)
         st.markdown("Cargue la lista de sus alumnos en un archivo CSV para evaluarlos de forma masiva y ordenada de mayor a menor riesgo.")
         
         archivo_cargado = st.file_uploader("Cargar Archivo CSV de Alumnos", type=["csv"])
@@ -504,7 +529,7 @@ def main():
                 if len(datos_lote.columns) <= 1:
                     datos_lote = pd.read_csv(archivo_cargado, sep=',')
                     
-                st.success(f"📂 Archivo cargado correctamente: {len(datos_lote)} estudiantes detectados.")
+                st.success(f"Archivo cargado correctamente: {len(datos_lote)} estudiantes detectados.")
                 
                 # Validar columnas
                 columnas_requeridas = [col for col in procesador.columnas_caracteristicas]
@@ -535,8 +560,8 @@ def main():
                     reporte_df["Perfil_Socioeconomico"] = agrupador.asignar_perfil(datos_lote_filtrados)
                     reporte_df = reporte_df.sort_values(by="Score_Riesgo_Desercion_Pct", ascending=False)
                     
-                    # --- RESUMEN DE RIESGO DEL LOTE CON COLORES ---
-                    st.markdown("#### 📋 Resumen del Lote Evaluado")
+                    # --- RESUMEN DE RIESGO DEL LOTE ---
+                    st.markdown("#### <i class='bi bi-clipboard-data-fill'></i> Resumen del Lote Evaluado", unsafe_allow_html=True)
                     
                     altos = (reporte_df["Nivel_Riesgo"] == "ALTO").sum()
                     medios = (reporte_df["Nivel_Riesgo"] == "MEDIO").sum()
@@ -546,21 +571,21 @@ def main():
                     with mcol1:
                         st.markdown(f'''
                             <div class="metric-card">
-                                <h3>🚨 Alumnos en Riesgo ALTO</h3>
+                                <h3>Alumnos en Riesgo ALTO</h3>
                                 <p class="riesgo-alto">{altos}</p>
                             </div>
                         ''', unsafe_allow_html=True)
                     with mcol2:
                         st.markdown(f'''
                             <div class="metric-card">
-                                <h3>⚠️ Alumnos en Riesgo MEDIO</h3>
+                                <h3>Alumnos en Riesgo MEDIO</h3>
                                 <p class="riesgo-medio">{medios}</p>
                             </div>
                         ''', unsafe_allow_html=True)
                     with mcol3:
                         st.markdown(f'''
                             <div class="metric-card">
-                                <h3>🟢 Alumnos en Riesgo BAJO</h3>
+                                <h3>Alumnos en Riesgo BAJO</h3>
                                 <p class="riesgo-bajo">{bajos}</p>
                             </div>
                         ''', unsafe_allow_html=True)
@@ -573,10 +598,10 @@ def main():
                     with dist_col1:
                         st.markdown("##### Distribucion porcentual del riesgo")
                         fig_lote_pie = px.pie(
-                            names=["Riesgo Alto 🔴", "Riesgo Medio 🟡", "Riesgo Bajo 🟢"],
+                            names=["Riesgo Alto", "Riesgo Medio", "Riesgo Bajo"],
                             values=[altos, medios, bajos],
-                            color=["Riesgo Alto 🔴", "Riesgo Medio 🟡", "Riesgo Bajo 🟢"],
-                            color_discrete_map={"Riesgo Alto 🔴": "#f87171", "Riesgo Medio 🟡": "#fbbf24", "Riesgo Bajo 🟢": "#34d399"},
+                            color=["Riesgo Alto", "Riesgo Medio", "Riesgo Bajo"],
+                            color_discrete_map={"Riesgo Alto": "#f87171", "Riesgo Medio": "#fbbf24", "Riesgo Bajo": "#34d399"},
                             hole=0.4
                         )
                         fig_lote_pie.update_layout(
@@ -610,7 +635,7 @@ def main():
                         st.plotly_chart(fig_lote_bar, use_container_width=True)
                     
                     st.markdown("---")
-                    st.markdown("##### 🔍 Nomina Detallada del Lote (Primeros 15 alumnos de mayor prioridad)")
+                    st.markdown("##### Nomina Detallada del Lote (Primeros 15 alumnos de mayor prioridad)")
                     columnas_resumen_salida = ["Age at enrollment", "Gender", "Scholarship holder", "Debtor", "Tuition fees up to date", "Prediccion", "Score_Riesgo_Desercion_Pct", "Nivel_Riesgo", "Perfil_Socioeconomico"]
                     columnas_resumen_disponibles = [col for col in columnas_resumen_salida if col in reporte_df.columns]
                     
@@ -618,7 +643,7 @@ def main():
                     
                     csv_descargable = reporte_df.to_csv(sep=';', index=False).encode('utf-8')
                     st.download_button(
-                        label="📥 Descargar Reporte Completo de Riesgos (CSV)",
+                        label="Descargar Reporte Completo de Riesgos (CSV)",
                         data=csv_descargable,
                         file_name="reporte_riesgo_estudiantes.csv",
                         mime="text/csv",
@@ -629,7 +654,7 @@ def main():
 
     # --- PESTAÑA 4: VALIDACIÓN DEL MODELO ---
     with pestana4:
-        st.markdown("### 🧪 Validacion Estadistica del Sistema")
+        st.markdown("### <i class='bi bi-shield-check'></i> Validacion Estadistica del Sistema", unsafe_allow_html=True)
         st.markdown("Esta seccion evalua la robustez del modelo predictivo y la calidad del agrupamiento socioeconomico.")
         
         vcol1, vcol2 = st.columns(2)
@@ -638,7 +663,7 @@ def main():
         with vcol1:
             st.markdown("#### Validacion Cruzada Estratificada (K-Fold, k=5)")
             st.write("Mide la estabilidad del accuracy al evaluar el modelo en 5 partes diferentes de la base de datos.")
-            if st.button("🚀 Ejecutar Validacion Cruzada", key="btn_cv", use_container_width=True):
+            if st.button("Ejecutar Validacion Cruzada", key="btn_cv", use_container_width=True):
                 with st.spinner("Ejecutando validacion cruzada..."):
                     try:
                         X_completo = pd.concat([procesador.X_entrenamiento, procesador.X_prueba])
@@ -677,7 +702,7 @@ def main():
         with vcol2:
             st.markdown("#### Silhouette Score (Validacion del Numero de Grupos)")
             st.write("Mide que tan bien separados y definidos estan los 3 perfiles socioeconomicos de los alumnos.")
-            if st.button("🚀 Calcular Silhouette por K", key="btn_sil", use_container_width=True):
+            if st.button("Calcular Silhouette por K", key="btn_sil", use_container_width=True):
                 with st.spinner("Calculando indices de separacion..."):
                     try:
                         scores_sil = agrupador.calcular_silhouette_por_k(procesador.datos, rango_k=(2, 6))
@@ -712,7 +737,7 @@ def main():
         # --- SHAP Importancia Global ---
         st.markdown("#### Importancia Global de Variables (SHAP)")
         st.write("Muestra que caracteristicas de los estudiantes influyen mas en la desercion a nivel de toda la universidad.")
-        if st.button("🚀 Generar Importancia Global SHAP", key="btn_shap_global", use_container_width=True):
+        if st.button("Generar Importancia Global SHAP", key="btn_shap_global", use_container_width=True):
             with st.spinner("Generando importancia global..."):
                 try:
                     df_importancia = explicador.calcular_importancia_global(procesador.X_entrenamiento, max_muestra=200)
